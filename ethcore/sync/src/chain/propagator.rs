@@ -309,18 +309,24 @@ impl SyncPropagator {
 		}
 	}
 
-	fn select_peers_for_transactions<F>(sync: &ChainSync, filter: F) -> Vec<PeerId>
+	fn select_peers_for_transactions<F>(sync: &mut ChainSync, filter: F) -> Vec<PeerId>
 		where F: Fn(&PeerId) -> bool {
 		// sqrt(x)/x scaled to max u32
 		let fraction = ((sync.peers.len() as f64).powf(-0.5) * (u32::max_value() as f64).round()) as u32;
 		let small = sync.peers.len() < MIN_PEERS_PROPAGATION;
+		let peers = sync.peers.keys().cloned();
 
-		let mut random = random::new();
-		sync.peers.keys()
-			.cloned()
+		let update_selection = || {
+			let mut rng = random::new();
+			peers.filter(|_| small || rng.next_u32() < fraction)
+				.take(MAX_PEERS_PROPAGATION)
+				.collect()
+		};
+
+		sync.peers_for_txn_propagation
+			.get(update_selection)
+		.into_iter()
 			.filter(filter)
-			.filter(|_| small || random.next_u32() < fraction)
-			.take(MAX_PEERS_PROPAGATION)
 			.collect()
 	}
 
