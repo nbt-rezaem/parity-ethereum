@@ -32,6 +32,7 @@ extern crate common_types as types;
 extern crate ethabi;
 extern crate ethcore;
 extern crate ethcore_call_contract as call_contract;
+extern crate ethcore_db;
 extern crate ethcore_io as io;
 extern crate ethcore_miner;
 extern crate ethereum_types;
@@ -41,6 +42,8 @@ extern crate fetch;
 extern crate futures;
 extern crate heapsize;
 extern crate keccak_hash as hash;
+extern crate kvdb;
+extern crate journaldb;
 extern crate parity_bytes as bytes;
 extern crate parity_crypto as crypto;
 extern crate parking_lot;
@@ -101,6 +104,7 @@ use ethcore::miner::{self, Miner, MinerService, pool_client::NonceCache};
 use ethcore::{state, state_db};
 use ethcore::trace::{Tracer, VMTracer};
 use call_contract::CallContract;
+use kvdb::KeyValueDB;
 use rustc_hex::FromHex;
 use ethabi::FunctionOutputDecoder;
 
@@ -213,6 +217,7 @@ impl Provider {
 		config: ProviderConfig,
 		channel: IoChannel<ClientIoMessage>,
 		keys_provider: Arc<KeyProvider>,
+		db: Arc<KeyValueDB>,
 	) -> Self {
 		keys_provider.update_acl_contract();
 		Provider {
@@ -229,7 +234,7 @@ impl Provider {
 			keys_provider,
 			logging: config.logs_path.map(|path| Logging::new(Arc::new(FileLogsSerializer::with_path(path)))),
 			use_offchain_storage: false,
-			state_storage: PrivateStateStore::new(),
+			state_storage: PrivateStateStore::new(db),
 		}
 	}
 
