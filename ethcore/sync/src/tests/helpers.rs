@@ -26,6 +26,7 @@ use ethcore::client::{TestBlockChainClient, BlockChainClient, Client as EthcoreC
 	ClientConfig, ChainNotify, NewBlocks, ChainMessageType, ClientIoMessage};
 use ethcore::snapshot::SnapshotService;
 use ethcore::spec::Spec;
+use ethcore_private_tx::PrivateStateDB;
 use ethcore::miner::Miner;
 use ethcore::test_helpers;
 use sync_io::SyncIo;
@@ -128,6 +129,10 @@ impl<'p, C> SyncIo for TestIo<'p, C> where C: FlushingBlockChainClient, C: 'p {
 
 	fn snapshot_service(&self) -> &SnapshotService {
 		self.snapshot_service
+	}
+
+	fn private_state(&self) -> &Option<Arc<PrivateStateDB>> {
+		&None
 	}
 
 	fn peer_session_info(&self, _peer_id: PeerId) -> Option<SessionInfo> {
@@ -238,6 +243,7 @@ impl<C> EthPeer<C> where C: FlushingBlockChainClient {
 				self.sync.write().propagate_private_transaction(&mut io, transaction_hash, PrivateTransactionPacket, data),
 			ChainMessageType::SignedPrivateTransaction(transaction_hash, data) =>
 				self.sync.write().propagate_private_transaction(&mut io, transaction_hash, SignedPrivateTransactionPacket, data),
+			ChainMessageType::PrivateStateRequest(addresses) => {}
 		}
 	}
 

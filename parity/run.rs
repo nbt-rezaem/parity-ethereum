@@ -644,9 +644,9 @@ fn execute_impl<Cr, Rr>(cmd: RunCmd, logger: Arc<RotatingLogger>, on_client_rq: 
 		None
 	};
 
-	let private_tx_sync: Option<Arc<PrivateTxHandler>> = match cmd.private_tx_enabled {
-		true => Some(private_tx_service.clone() as Arc<PrivateTxHandler>),
-		false => None,
+	let (private_tx_sync, private_state) = match cmd.private_tx_enabled {
+		true => (Some(private_tx_service.clone() as Arc<PrivateTxHandler>), Some(private_tx_provider.private_state_db())),
+		false => (None, None),
 	};
 
 	// create sync object
@@ -657,6 +657,7 @@ fn execute_impl<Cr, Rr>(cmd: RunCmd, logger: Arc<RotatingLogger>, on_client_rq: 
 		client.clone(),
 		snapshot_service.clone(),
 		private_tx_sync,
+		private_state,
 		client.clone(),
 		&cmd.logger_config,
 		attached_protos,

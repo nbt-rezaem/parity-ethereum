@@ -19,6 +19,7 @@ use std::sync::{Arc, mpsc};
 use ethcore::client::BlockChainClient;
 use sync::{self, AttachedProtocol, SyncConfig, NetworkConfiguration, Params, ConnectionFilter};
 use ethcore::snapshot::SnapshotService;
+use ethcore_private_tx::PrivateStateDB;
 use light::Provider;
 use parity_runtime::Executor;
 
@@ -40,6 +41,7 @@ pub fn sync(
 	chain: Arc<BlockChainClient>,
 	snapshot_service: Arc<SnapshotService>,
 	private_tx_handler: Option<Arc<PrivateTxHandler>>,
+	private_state: Option<Arc<PrivateStateDB>>,
 	provider: Arc<Provider>,
 	_log_settings: &LogConfig,
 	attached_protos: Vec<AttachedProtocol>,
@@ -52,6 +54,7 @@ pub fn sync(
 		provider,
 		snapshot_service,
 		private_tx_handler,
+		private_state,
 		network_config,
 		attached_protos,
 	},
