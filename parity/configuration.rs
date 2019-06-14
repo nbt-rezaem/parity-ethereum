@@ -1460,6 +1460,7 @@ mod tests {
 				validator_accounts: Default::default(),
 				signer_account: Default::default(),
 				logs_path: Some(Directories::default().base),
+				use_offchain_storage: false,
 			},
 			private_encryptor_conf: Default::default(),
 			private_tx_enabled: false,
